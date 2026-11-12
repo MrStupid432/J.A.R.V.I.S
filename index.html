@@ -154,12 +154,54 @@ footer {
   PERSONAL ARTIFICIAL INTELLIGENCE
 </footer>
 
+
 <script>
 function startListening() {
+  const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    document.getElementById("response").innerText =
+      "VOICE RECOGNITION NOT SUPPORTED";
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+
+  recognition.lang = "en-AU";
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
   document.getElementById("response").innerText =
-    "VOICE SYSTEM NOT CONNECTED YET";
+    "LISTENING...";
+
+  recognition.onresult = function(event) {
+    const words = event.results[0][0].transcript;
+
+    document.getElementById("response").innerText =
+      "I HEARD: " + words;
+
+    const reply = new SpeechSynthesisUtterance(
+      "I heard you say " + words
+    );
+
+    reply.lang = "en-AU";
+    reply.rate = 0.95;
+
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(reply);
+  };
+
+  recognition.onerror = function(event) {
+    document.getElementById("response").innerText =
+      "VOICE ERROR: " + event.error;
+  };
+
+  recognition.start();
 }
-</script>
+  </script>
+  
 
 </body>
 </html>
